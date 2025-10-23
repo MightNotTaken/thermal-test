@@ -22,6 +22,7 @@ void signalHandler(int signum) {
     std::cout << "\nReceived signal " << signum << ". Shutting down gracefully..." << std::endl;
     g_running = false;
     if (g_thermal_camera) {
+        g_thermal_camera->stopVideoStream();
         g_thermal_camera->stop();
     }
 }
@@ -78,6 +79,10 @@ int main(int argc, char* argv[]) {
         
         std::cout << "\n=== Starting Thermal Camera Stream ===" << std::endl;
         std::cout << "Press Ctrl+C to stop the application" << std::endl;
+        std::cout << "Video streaming controls:" << std::endl;
+        std::cout << "  'q' or ESC - Quit application" << std::endl;
+        std::cout << "  's' - Save current frame" << std::endl;
+        std::cout << "  't' - Toggle temperature range" << std::endl;
         
         // Start the thermal camera
         if (!g_thermal_camera->start()) {
@@ -86,19 +91,22 @@ int main(int argc, char* argv[]) {
             return -1;
         }
         
-        // Main loop
-        while (g_running && g_thermal_camera->isRunning()) {
-            // Process thermal camera frames
-            if (!g_thermal_camera->processFrame()) {
-                std::cerr << "Error processing frame" << std::endl;
-                break;
-            }
-            
+        // Start video streaming
+        if (!g_thermal_camera->startVideoStream()) {
+            std::cerr << "Failed to start video stream" << std::endl;
+            g_thermal_camera->stop();
+            delete g_thermal_camera;
+            return -1;
+        }
+        
+        // Main loop - wait for video streaming to complete
+        while (g_running && g_thermal_camera->isRunning() && g_thermal_camera->isVideoStreaming()) {
             // Small delay to prevent excessive CPU usage
-            usleep(1000); // 1ms
+            usleep(10000); // 10ms
         }
         
         std::cout << "\n=== Stopping Thermal Camera ===" << std::endl;
+        g_thermal_camera->stopVideoStream();
         g_thermal_camera->stop();
         
     } catch (const std::exception& e) {

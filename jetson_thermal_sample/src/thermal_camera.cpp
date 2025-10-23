@@ -3,6 +3,8 @@
 #include <cstring>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <chrono>
+#include <thread>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
@@ -25,6 +27,7 @@ ThermalCamera::ThermalCamera()
     , m_v4l2_handle(nullptr)
     , m_running(false)
     , m_initialized(false)
+    , m_video_streaming(false)
     , m_min_temp(20.0f)
     , m_max_temp(100.0f)
 {
@@ -199,6 +202,7 @@ void ThermalCamera::stop() {
     std::cout << "Stopping thermal camera stream..." << std::endl;
     
     m_running = false;
+    m_video_streaming = false;
     
     // Wait for threads to finish
     if (m_stream_thread.joinable()) {
@@ -209,6 +213,9 @@ void ThermalCamera::stop() {
     }
     if (m_command_thread.joinable()) {
         m_command_thread.join();
+    }
+    if (m_video_stream_thread.joinable()) {
+        m_video_stream_thread.join();
     }
     
     std::cout << "Thermal camera stream stopped" << std::endl;
@@ -309,6 +316,197 @@ void* ThermalCamera::commandThread(void* arg) {
     
     std::cout << "Command thread ended" << std::endl;
     return nullptr;
+}
+
+bool ThermalCamera::startVideoStream() {
+    if (!m_initialized) {
+        std::cerr << "Camera not initialized" << std::endl;
+        return false;
+    }
+    
+    if (m_video_streaming) {
+        std::cout << "Video stream already running" << std::endl;
+        return true;
+    }
+    
+    std::cout << "Starting video stream..." << std::endl;
+    
+    m_video_streaming = true;
+    m_video_stream_thread = std::thread(videoStreamThread, this);
+    
+    std::cout << "Video stream started" << std::endl;
+    return true;
+}
+
+void ThermalCamera::stopVideoStream() {
+    if (!m_video_streaming) {
+        return;
+    }
+    
+    std::cout << "Stopping video stream..." << std::endl;
+    
+    m_video_streaming = false;
+    
+    if (m_video_stream_thread.joinable()) {
+        m_video_stream_thread.join();
+    }
+    
+    // Close OpenCV windows
+    cv::destroyAllWindows();
+    
+    std::cout << "Video stream stopped" << std::endl;
+}
+
+bool ThermalCamera::isVideoStreaming() const {
+    return m_video_streaming;
+}
+
+void* ThermalCamera::videoStreamThread(void* arg) {
+    ThermalCamera* camera = static_cast<ThermalCamera*>(arg);
+    
+    std::cout << "Video stream thread started" << std::endl;
+    
+    // Create OpenCV window
+    cv::namedWindow("Thermal Camera Stream", cv::WINDOW_AUTOSIZE);
+    cv::namedWindow("Temperature Visualization", cv::WINDOW_AUTOSIZE);
+    
+    cv::Mat thermal_frame;
+    cv::Mat temperature_vis;
+    cv::Mat visible_frame;
+    
+    int frame_count = 0;
+    auto start_time = std::chrono::high_resolution_clock::now();
+    
+    while (camera->m_video_streaming) {
+        try {
+            // Simulate frame capture from thermal camera
+            // In real implementation, this would capture from V4L2 stream
+            thermal_frame = camera->simulateThermalFrame();
+            temperature_vis = camera->createTemperatureVisualization(thermal_frame);
+            visible_frame = camera->simulateVisibleFrame();
+            
+            if (!thermal_frame.empty()) {
+                // Display thermal image
+                cv::imshow("Thermal Camera Stream", thermal_frame);
+                
+                // Display temperature visualization
+                cv::imshow("Temperature Visualization", temperature_vis);
+                
+                // Add frame info overlay
+                camera->addFrameInfoOverlay(thermal_frame, frame_count);
+                
+                // Update frame counter
+                frame_count++;
+                
+                // Calculate and display FPS
+                if (frame_count % 30 == 0) {
+                    auto current_time = std::chrono::high_resolution_clock::now();
+                    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
+                    double fps = 30000.0 / duration.count();
+                    std::cout << "FPS: " << fps << std::endl;
+                    start_time = current_time;
+                }
+            }
+            
+            // Handle keyboard input
+            char key = cv::waitKey(1) & 0xFF;
+            if (key == 'q' || key == 27) { // 'q' or ESC
+                std::cout << "User requested exit" << std::endl;
+                camera->m_video_streaming = false;
+                break;
+            } else if (key == 's') { // Save frame
+                std::string filename = "thermal_frame_" + std::to_string(frame_count) + ".png";
+                camera->saveFrame(filename);
+                std::cout << "Frame saved: " << filename << std::endl;
+            } else if (key == 't') { // Toggle temperature range
+                camera->toggleTemperatureRange();
+            }
+            
+        } catch (const std::exception& e) {
+            std::cerr << "Error in video stream thread: " << e.what() << std::endl;
+        }
+        
+        // Control frame rate (30 FPS)
+        std::this_thread::sleep_for(std::chrono::milliseconds(33));
+    }
+    
+    cv::destroyAllWindows();
+    std::cout << "Video stream thread ended" << std::endl;
+    return nullptr;
+}
+
+cv::Mat ThermalCamera::simulateThermalFrame() {
+    // Create a simulated thermal image (640x480)
+    cv::Mat thermal_frame = cv::Mat::zeros(480, 640, CV_8UC1);
+    
+    // Add some thermal patterns
+    cv::circle(thermal_frame, cv::Point(320, 240), 50, cv::Scalar(255), -1);
+    cv::circle(thermal_frame, cv::Point(200, 150), 30, cv::Scalar(200), -1);
+    cv::circle(thermal_frame, cv::Point(450, 300), 40, cv::Scalar(180), -1);
+    
+    // Add some noise
+    cv::Mat noise = cv::Mat::zeros(480, 640, CV_8UC1);
+    cv::randn(noise, cv::Scalar(0), cv::Scalar(10));
+    thermal_frame += noise;
+    
+    return thermal_frame;
+}
+
+cv::Mat ThermalCamera::simulateVisibleFrame() {
+    // Create a simulated visible light image
+    cv::Mat visible_frame = cv::Mat::zeros(480, 640, CV_8UC3);
+    
+    // Add some colored patterns
+    cv::circle(visible_frame, cv::Point(320, 240), 50, cv::Scalar(0, 255, 0), -1);
+    cv::circle(visible_frame, cv::Point(200, 150), 30, cv::Scalar(255, 0, 0), -1);
+    cv::circle(visible_frame, cv::Point(450, 300), 40, cv::Scalar(0, 0, 255), -1);
+    
+    return visible_frame;
+}
+
+cv::Mat ThermalCamera::createTemperatureVisualization(const cv::Mat& thermal_frame) {
+    cv::Mat temp_vis;
+    
+    // Apply colormap for temperature visualization
+    cv::applyColorMap(thermal_frame, temp_vis, cv::COLORMAP_JET);
+    
+    // Add temperature scale
+    cv::Mat scale = cv::Mat::zeros(480, 50, CV_8UC3);
+    for (int i = 0; i < 480; i++) {
+        int color_value = (i * 255) / 480;
+        cv::Scalar color;
+        cv::applyColorMap(cv::Mat(1, 1, CV_8UC1, color_value), color, cv::COLORMAP_JET);
+        scale.row(i) = color[0];
+    }
+    
+    // Combine thermal image with scale
+    cv::hconcat(thermal_frame, scale, temp_vis);
+    
+    return temp_vis;
+}
+
+void ThermalCamera::addFrameInfoOverlay(cv::Mat& frame, int frame_count) {
+    // Add frame information overlay
+    std::string info = "Frame: " + std::to_string(frame_count);
+    cv::putText(frame, info, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255), 2);
+    
+    std::string temp_range = "Temp: " + std::to_string(m_min_temp) + "°C - " + std::to_string(m_max_temp) + "°C";
+    cv::putText(frame, temp_range, cv::Point(10, 60), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255), 1);
+    
+    std::string controls = "Controls: 'q'=quit, 's'=save, 't'=temp range";
+    cv::putText(frame, controls, cv::Point(10, frame.rows - 20), cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255), 1);
+}
+
+void ThermalCamera::toggleTemperatureRange() {
+    // Toggle between different temperature ranges
+    static int range_index = 0;
+    float ranges[][2] = {{20.0f, 100.0f}, {0.0f, 50.0f}, {50.0f, 150.0f}};
+    
+    range_index = (range_index + 1) % 3;
+    m_min_temp = ranges[range_index][0];
+    m_max_temp = ranges[range_index][1];
+    
+    std::cout << "Temperature range changed to: " << m_min_temp << "°C - " << m_max_temp << "°C" << std::endl;
 }
 
 void ThermalCamera::cleanup() {

@@ -53,6 +53,15 @@ public:
     // Get temperature data
     cv::Mat getTemperatureData() const;
     
+    // Start video streaming with OpenCV display
+    bool startVideoStream();
+    
+    // Stop video streaming
+    void stopVideoStream();
+    
+    // Check if video streaming is active
+    bool isVideoStreaming() const;
+    
     // Save current frame to file
     bool saveFrame(const std::string& filename) const;
     
@@ -74,6 +83,14 @@ private:
     static void* streamThread(void* arg);
     static void* displayThread(void* arg);
     static void* commandThread(void* arg);
+    static void* videoStreamThread(void* arg);
+    
+    // Video streaming helper methods
+    cv::Mat simulateThermalFrame();
+    cv::Mat simulateVisibleFrame();
+    cv::Mat createTemperatureVisualization(const cv::Mat& thermal_frame);
+    void addFrameInfoOverlay(cv::Mat& frame, int frame_count);
+    void toggleTemperatureRange();
     
     // Member variables
     single_config m_config;
@@ -89,8 +106,10 @@ private:
     std::thread m_stream_thread;
     std::thread m_display_thread;
     std::thread m_command_thread;
+    std::thread m_video_stream_thread;
     std::atomic<bool> m_running;
     std::atomic<bool> m_initialized;
+    std::atomic<bool> m_video_streaming;
     
     // Data
     mutable std::mutex m_data_mutex;
