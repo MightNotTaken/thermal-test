@@ -5,8 +5,8 @@
 #include <vector>
 #include <map>
 
-// Forward declaration of the config structure from the SDK
-struct single_config;
+// Include config header for single_config
+#include "config.h"
 
 class ConfigParser {
 public:

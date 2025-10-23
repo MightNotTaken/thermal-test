@@ -1,0 +1,226 @@
+sudo ./build.sh
+=== Jetson Thermal Camera Sample Build Script ===
+Target: NVIDIA Jetson with Ubuntu 22.04
+Architecture: ARM64 (aarch64-linux-gnu)
+
+Starting build process for Jetson Thermal Camera Sample...
+
+[INFO] Checking if running on NVIDIA Jetson...
+[SUCCESS] NVIDIA Jetson detected
+# R36 (release), REVISION: 4.7, GCID: 42132812, BOARD: generic, EABI: aarch64, DATE: Thu Sep 18 22:54:44 UTC 2025
+# KERNEL_VARIANT: oot
+TARGET_USERSPACE_LIB_DIR=nvidia
+TARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia
+
+[INFO] Checking system requirements...
+[SUCCESS] Ubuntu 22.04 detected
+[SUCCESS] ARM64 architecture detected
+[SUCCESS] Memory: 7619MB
+
+[INFO] Installing dependencies...
+Hit:1 https://repo.download.nvidia.com/jetson/common r36.4 InRelease
+Hit:2 https://repo.download.nvidia.com/jetson/t234 r36.4 InRelease
+Hit:3 https://repo.download.nvidia.com/jetson/ffmpeg r36.4 InRelease
+Hit:4 http://ports.ubuntu.com/ubuntu-ports jammy InRelease
+Hit:5 http://ports.ubuntu.com/ubuntu-ports jammy-updates InRelease
+Hit:6 http://ports.ubuntu.com/ubuntu-ports jammy-backports InRelease
+Hit:7 http://ports.ubuntu.com/ubuntu-ports jammy-security InRelease
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+build-essential is already the newest version (12.9ubuntu3).
+libjpeg-dev is already the newest version (8c-2ubuntu10).
+libpng-dev is already the newest version (1.6.37-3build5).
+libv4l-dev is already the newest version (1.22.1-2build1).
+pkg-config is already the newest version (0.29.2-1ubuntu3).
+libi2c-dev is already the newest version (4.3-2build1).
+libserial-dev is already the newest version (1.0.0-7).
+cmake is already the newest version (3.22.1-1ubuntu1.22.04.2).
+git is already the newest version (1:2.34.1-1ubuntu1.15).
+libcanberra-gtk3-module is already the newest version (0.30-10ubuntu1.22.04.1).
+libgtk-3-dev is already the newest version (3.24.33-1ubuntu2.2).
+libtiff-dev is already the newest version (4.3.0-6ubuntu0.12).
+libudev-dev is already the newest version (249.11-0ubuntu3.17).
+libusb-1.0-0-dev is already the newest version (2:1.0.25-1ubuntu2).
+libavcodec-dev is already the newest version (7:4.4.2-0ubuntu0.22.04.1).
+libavformat-dev is already the newest version (7:4.4.2-0ubuntu0.22.04.1).
+libcanberra-gtk-module is already the newest version (0.30-10ubuntu1.22.04.1).
+libswscale-dev is already the newest version (7:4.4.2-0ubuntu0.22.04.1).
+libopencv-dev is already the newest version (4.8.0-1-g6371ee1).
+The following packages were automatically installed and are no longer required:
+  gdal-data libaec0 libarmadillo10 libarpack2 libavcodec58 libavfilter7
+  libavformat58 libavutil56 libblosc1 libcfitsio9 libcharls2
+  libevent-core-2.1-7 libevent-pthreads-2.1-7 libexif-dev libfabric1
+  libfreexl1 libfyba0 libgdal30 libgdcm-dev libgdcm3.0 libgeos-c1v5
+  libgeos3.10.2 libgeotiff5 libgl2ps1.4 libglew2.2 libgphoto2-dev
+  libhdf4-0-alt libhdf5-103-1 libhdf5-hl-100 libheif1 libhwloc-plugins
+  libhwloc15 libilmbase-dev libkmlbase1 libkmldom1 libkmlengine1 liblept5
+  libminizip1 libmysqlclient21 libnetcdf19 libodbc2 libodbcinst2 libogdi4.1
+  libopencv-calib3d4.5d libopencv-contrib4.5d libopencv-dnn4.5d
+  libopencv-features2d4.5d libopencv-flann4.5d libopencv-highgui4.5d
+  libopencv-imgcodecs4.5d libopencv-imgproc4.5d libopencv-ml4.5d
+  libopencv-objdetect4.5d libopencv-photo4.5d libopencv-shape4.5d
+  libopencv-stitching4.5d libopencv-superres4.5d libopencv-video4.5d
+  libopencv-videoio4.5d libopencv-videostab4.5d libopencv-viz4.5d
+  libopenexr-dev libopenmpi3 libpmix2 libpostproc55 libpq5 libproj22
+  librttopo1 libsocket++1 libspatialite7 libssh-gcrypt-4 libsuperlu5
+  libswresample3 libswscale5 libsz2 libtbb-dev libtbb12 libtesseract4 libucx0
+  liburiparser1 libvdpau1 libvtk9.1 libxerces-c3.2 libxnvctrl0 mysql-common
+  proj-data unixodbc-common
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 8 not upgraded.
+[SUCCESS] Dependencies installed
+
+[INFO] Checking SDK availability...
+[SUCCESS] SDK found and ARM64 libraries available
+
+[INFO] Creating build directory...
+[WARNING] Build directory exists - cleaning...
+[SUCCESS] Build directory created
+
+[INFO] Configuring CMake...
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.2") 
+-- Checking for module 'opencv4'
+--   Found opencv4, version 4.8.0
+-- Configuring done
+-- Generating done
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    OPENCV_DIR
+
+
+-- Build files have been written to: /home/sahil/Desktop/sdk/jetson_thermal_sample/build
+[SUCCESS] CMake configuration completed
+
+[INFO] Building project...
+[INFO] Using 6 cores for parallel build
+[INFO] Building full SDK version (with libir SDK dependencies)...
+[ 20%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/config_parser.cpp.o
+[ 20%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/main.cpp.o
+[ 20%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/thermal_camera.cpp.o
+[ 26%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp.o
+[ 33%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/data.cpp.o
+[ 40%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/config.cpp.o
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.cpp: In member function ‘const single_config& ConfigParser::getConfig() const’:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.cpp:193:42: error: cannot convert ‘std::string’ {aka ‘std::__cxx11::basic_string<char>’} to ‘char*’
+  193 |         strncpy(config.control.i2c_param.dev_name, m_video_device.c_str(), sizeof(config.control.i2c_param.dev_name) - 1);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+      |                                          |
+      |                                          std::string {aka std::__cxx11::basic_string<char>}
+In file included from /usr/include/features.h:486,
+                 from /usr/include/aarch64-linux-gnu/c++/11/bits/os_defines.h:39,
+                 from /usr/include/aarch64-linux-gnu/c++/11/bits/c++config.h:586,
+                 from /usr/include/c++/11/string:38,
+                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.h:4,
+                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.cpp:1:
+/usr/include/aarch64-linux-gnu/bits/string_fortified.h:92:1: note:   initializing argument 1 of ‘char* strncpy(char*, const char*, size_t)’
+   92 | __NTH (strncpy (char *__restrict __dest, const char *__restrict __src,
+      | ^~~~~
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.cpp:201:19: error: ‘struct camera_config’ has no member named ‘fps’
+  201 |     config.camera.fps = m_fps;
+      |                   ^~~
+/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp: In function ‘void init_v4l2_video_stream(StreamFrameInfo_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp:84:22: warning: unused variable ‘cur_fmt’ [-Wunused-variable]
+   84 |     FrameOutputFmt_t cur_fmt = stream_frame_info->frame_output_format;
+      |                      ^~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp: In function ‘void init_double_channel_video_stream(StreamFrameInfo_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp:216:22: warning: unused variable ‘cur_fmt’ [-Wunused-variable]
+  216 |     FrameOutputFmt_t cur_fmt = stream_frame_info->frame_output_format;
+      |                      ^~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp: In function ‘void init_temp_video_stream(StreamFrameInfo_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp:343:22: warning: unused variable ‘cur_fmt’ [-Wunused-variable]
+  343 |     FrameOutputFmt_t cur_fmt = stream_frame_info->frame_output_format;
+      |                      ^~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp: In function ‘void init_image_video_stream(StreamFrameInfo_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp:418:22: warning: unused variable ‘cur_fmt’ [-Wunused-variable]
+  418 |     FrameOutputFmt_t cur_fmt = stream_frame_info->frame_output_format;
+      |                      ^~~~~~~
+make[3]: *** [CMakeFiles/jetson_thermal_sample.dir/build.make:104: CMakeFiles/jetson_thermal_sample.dir/src/config_parser.cpp.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+In file included from /home/sahil/Desktop/sdk/libir_sample/common/config.cpp:1:
+/home/sahil/Desktop/sdk/libir_sample/common/config.h: In constructor ‘control_config::control_config()’:
+/home/sahil/Desktop/sdk/libir_sample/common/config.h:63:10: warning: ‘control_config::is_usb_control’ will be initialized after [-Wreorder]
+   63 |     bool is_usb_control;
+      |          ^~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/common/config.h:62:10: warning:   ‘bool control_config::is_i2c_usb_control’ [-Wreorder]
+   62 |     bool is_i2c_usb_control;
+      |          ^~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/common/config.cpp:373:1: warning:   when initialized here [-Wreorder]
+  373 | control_config::control_config()
+      | ^~~~~~~~~~~~~~
+In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:5:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:76:19: error: field ‘m_config’ has incomplete type ‘single_config’
+   76 |     single_config m_config;
+      |                   ^~~~~~~~
+In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:10,
+                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:5:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.h:9:8: note: forward declaration of ‘struct single_config’
+    9 | struct single_config;
+      |        ^~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp: In function ‘int main(int, char**)’:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:52:44: error: ‘irv4l2_version’ was not declared in this scope; did you mean ‘libv4l2_version’?
+   52 |         std::cout << "IRV4L2 Version: " << irv4l2_version() << std::endl;
+      |                                            ^~~~~~~~~~~~~~
+      |                                            libv4l2_version
+In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp:1:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:76:19: error: field ‘m_config’ has incomplete type ‘single_config’
+   76 |     single_config m_config;
+      |                   ^~~~~~~~
+In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:10,
+                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp:1:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.h:9:8: note: forward declaration of ‘struct single_config’
+    9 | struct single_config;
+      |        ^~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp: In member function ‘bool ThermalCamera::initializeControl()’:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp:98:44: warning: missing initializer for member ‘UartConDevParams_t::reserved’ [-Wmissing-field-initializers]
+   98 |         UartConDevParams_t uart_params = {0};
+      |                                            ^
+make[3]: *** [CMakeFiles/jetson_thermal_sample.dir/build.make:76: CMakeFiles/jetson_thermal_sample.dir/src/main.cpp.o] Error 1
+make[3]: *** [CMakeFiles/jetson_thermal_sample.dir/build.make:90: CMakeFiles/jetson_thermal_sample.dir/src/thermal_camera.cpp.o] Error 1
+make[2]: *** [CMakeFiles/Makefile2:85: CMakeFiles/jetson_thermal_sample.dir/all] Error 2
+make[1]: *** [CMakeFiles/Makefile2:92: CMakeFiles/jetson_thermal_sample.dir/rule] Error 2
+make: *** [Makefile:169: jetson_thermal_sample] Error 2
+[ERROR] Full SDK version build failed
+[INFO] Trying simple fallback version...
+[ 33%] Building CXX object CMakeFiles/jetson_thermal_sample_simple.dir/src/simple_main.cpp.o
+[ 66%] Building CXX object CMakeFiles/jetson_thermal_sample_simple.dir/src/simple_thermal_camera.cpp.o
+[100%] Linking CXX executable jetson_thermal_sample_simple
+[100%] Built target jetson_thermal_sample_simple
+[SUCCESS] Simple fallback version built successfully
+[WARNING] Using simple version - full SDK features not available
+[SUCCESS] Build completed
+
+[INFO] Installing project...
+Consolidate compiler generated dependencies of target jetson_thermal_sample
+[  5%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/main.cpp.o
+In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:5:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:76:19: error: field ‘m_config’ has incomplete type ‘single_config’
+   76 |     single_config m_config;
+      |                   ^~~~~~~~
+In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:10,
+                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:5:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.h:9:8: note: forward declaration of ‘struct single_config’
+    9 | struct single_config;
+      |        ^~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp: In function ‘int main(int, char**)’:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:52:44: error: ‘irv4l2_version’ was not declared in this scope; did you mean ‘libv4l2_version’?
+   52 |         std::cout << "IRV4L2 Version: " << irv4l2_version() << std::endl;
+      |                                            ^~~~~~~~~~~~~~
+      |                                            libv4l2_version
+make[2]: *** [CMakeFiles/jetson_thermal_sample.dir/build.make:76: CMakeFiles/jetson_thermal_sample.dir/src/main.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:85: CMakeFiles/jetson_thermal_sample.dir/all] Error 2
+make: *** [Makefile:136: all] Error 2

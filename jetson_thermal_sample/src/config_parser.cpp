@@ -190,15 +190,13 @@ const single_config& ConfigParser::getConfig() const {
     
     // Set device names
     if (config.control.is_i2c_control) {
-        strncpy(config.control.i2c_param.dev_name, m_video_device.c_str(), sizeof(config.control.i2c_param.dev_name) - 1);
-        config.control.i2c_param.dev_name[sizeof(config.control.i2c_param.dev_name) - 1] = '\0';
+        config.control.i2c_param.dev_name = m_video_device;
     }
     
     // Initialize camera configuration
     config.camera.is_auto_image = false;
     config.camera.width = m_width;
     config.camera.height = m_height;
-    config.camera.fps = m_fps;
     
     // Set video device
     config.camera.v4l2_config.image_stream.device_name = m_video_device;

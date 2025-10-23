@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
         std::cout << "IRCMD Version: " << ircmd_version() << std::endl;
         std::cout << "IRCAM Version: " << ircam_version() << std::endl;
         std::cout << "IRUART Version: " << iruart_version() << std::endl;
-        std::cout << "IRV4L2 Version: " << irv4l2_version() << std::endl;
+        std::cout << "IRV4L2 Version: " << libv4l2_version() << std::endl;
         
         // Set log levels
         std::cout << "\n=== Setting Log Levels ===" << std::endl;

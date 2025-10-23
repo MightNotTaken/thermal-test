@@ -21,6 +21,9 @@ extern "C" {
     #include "libiri2c.h"
 }
 
+// Include config header for single_config
+#include "config.h"
+
 class ThermalCamera {
 public:
     ThermalCamera();
