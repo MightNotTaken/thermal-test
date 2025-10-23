@@ -166,48 +166,44 @@ bool ThermalCamera::initializeVideo() {
     }
     
     // Initialize V4L2 video stream
-    std::string video_device = m_config.camera.v4l2_config.video_device;
+    std::string video_device = "/dev/video0"; // Default device
     std::cout << "Opening video device: " << video_device << std::endl;
     
     // Open video device
-    int ret = irv4l2_open(m_v4l2_handle, video_device.c_str());
+    int ret = irv4l2_camera_open(m_v4l2_handle, const_cast<char*>(video_device.c_str()));
     if (ret != IRLIB_SUCCESS) {
         std::cerr << "Failed to open video device: " << video_device << std::endl;
         return false;
     }
     
     // Set video format and resolution
-    V4L2Format_t format = {0};
-    format.width = m_config.camera.v4l2_config.image_stream.width;
-    format.height = m_config.camera.v4l2_config.image_stream.height;
-    format.pixel_format = V4L2_PIX_FMT_NV12; // Common thermal camera format
+    CamDevParams_t dev_params = {0};
+    dev_params.width = 640;  // Default resolution
+    dev_params.height = 480;
+    dev_params.format = V4L2_PIX_FMT_NV12; // Common thermal camera format
+    dev_params.fps = 30;
     
-    ret = irv4l2_set_format(m_v4l2_handle, &format);
+    ret = irv4l2_camera_init(m_v4l2_handle, &dev_params);
     if (ret != IRLIB_SUCCESS) {
-        std::cerr << "Failed to set video format" << std::endl;
+        std::cerr << "Failed to initialize video format" << std::endl;
         return false;
     }
     
-    // Set frame rate
-    V4L2StreamParams_t stream_params = {0};
-    stream_params.fps = m_config.camera.v4l2_config.image_stream.fps;
-    
-    ret = irv4l2_set_stream_params(m_v4l2_handle, &stream_params);
-    if (ret != IRLIB_SUCCESS) {
-        std::cerr << "Failed to set stream parameters" << std::endl;
-        return false;
-    }
+    // Set stream parameters
+    CamStreamParams_t stream_params = {0};
+    stream_params.width = 640;
+    stream_params.height = 480;
     
     // Start video stream
-    ret = irv4l2_start_stream(m_v4l2_handle);
+    ret = irv4l2_camera_start_stream(m_v4l2_handle, &stream_params);
     if (ret != IRLIB_SUCCESS) {
         std::cerr << "Failed to start video stream" << std::endl;
         return false;
     }
     
     std::cout << "Video interface initialized successfully" << std::endl;
-    std::cout << "Resolution: " << format.width << "x" << format.height << std::endl;
-    std::cout << "Frame rate: " << stream_params.fps << " FPS" << std::endl;
+    std::cout << "Resolution: " << dev_params.width << "x" << dev_params.height << std::endl;
+    std::cout << "Frame rate: " << dev_params.fps << " FPS" << std::endl;
     return true;
 }
 
@@ -510,40 +506,37 @@ cv::Mat ThermalCamera::captureRealThermalFrame() {
         return cv::Mat();
     }
     
+    // Allocate frame buffer
+    const int frame_size = 640 * 480 * 2; // NV12 format size
+    uint8_t* frame_data = new uint8_t[frame_size];
+    
+    // Frame parameters
+    FrameGetParams_t frame_params = {0};
+    
     // Capture frame from V4L2 stream
-    V4L2Frame_t frame_data;
-    int ret = irv4l2_get_frame(m_v4l2_handle, &frame_data);
+    int ret = irv4l2_camera_frame_get(m_v4l2_handle, &frame_params, frame_data, frame_size);
     
     if (ret != IRLIB_SUCCESS) {
         std::cerr << "Failed to capture frame from thermal camera" << std::endl;
+        delete[] frame_data;
         return cv::Mat();
     }
     
-    // Convert V4L2 frame to OpenCV Mat
+    // Convert NV12 frame to OpenCV Mat
     cv::Mat thermal_frame;
     
-    if (frame_data.format == V4L2_PIX_FMT_NV12) {
-        // Convert NV12 to grayscale
-        cv::Mat nv12_frame(frame_data.height + frame_data.height/2, frame_data.width, CV_8UC1, frame_data.data);
-        cv::Mat yuv_frame;
-        cv::cvtColor(nv12_frame, yuv_frame, cv::COLOR_YUV2BGR_NV12);
-        cv::cvtColor(yuv_frame, thermal_frame, cv::COLOR_BGR2GRAY);
-    } else if (frame_data.format == V4L2_PIX_FMT_YUYV) {
-        // Convert YUYV to grayscale
-        cv::Mat yuyv_frame(frame_data.height, frame_data.width, CV_8UC2, frame_data.data);
-        cv::Mat yuv_frame;
-        cv::cvtColor(yuyv_frame, yuv_frame, cv::COLOR_YUV2BGR_YUYV);
-        cv::cvtColor(yuv_frame, thermal_frame, cv::COLOR_BGR2GRAY);
-    } else if (frame_data.format == V4L2_PIX_FMT_GREY) {
-        // Direct grayscale
-        thermal_frame = cv::Mat(frame_data.height, frame_data.width, CV_8UC1, frame_data.data).clone();
-    } else {
-        std::cerr << "Unsupported pixel format: " << frame_data.format << std::endl;
-        return cv::Mat();
-    }
+    // Create NV12 frame (height + height/2 for UV plane)
+    cv::Mat nv12_frame(480 + 240, 640, CV_8UC1, frame_data);
     
-    // Release frame buffer
-    irv4l2_release_frame(m_v4l2_handle, &frame_data);
+    // Convert NV12 to BGR
+    cv::Mat bgr_frame;
+    cv::cvtColor(nv12_frame, bgr_frame, cv::COLOR_YUV2BGR_NV12);
+    
+    // Convert BGR to grayscale for thermal data
+    cv::cvtColor(bgr_frame, thermal_frame, cv::COLOR_BGR2GRAY);
+    
+    // Clean up frame buffer
+    delete[] frame_data;
     
     return thermal_frame;
 }
