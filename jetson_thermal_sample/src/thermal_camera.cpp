@@ -165,7 +165,49 @@ bool ThermalCamera::initializeVideo() {
         return false;
     }
     
+    // Initialize V4L2 video stream
+    std::string video_device = m_config.camera.v4l2_config.video_device;
+    std::cout << "Opening video device: " << video_device << std::endl;
+    
+    // Open video device
+    int ret = irv4l2_open(m_v4l2_handle, video_device.c_str());
+    if (ret != IRLIB_SUCCESS) {
+        std::cerr << "Failed to open video device: " << video_device << std::endl;
+        return false;
+    }
+    
+    // Set video format and resolution
+    V4L2Format_t format = {0};
+    format.width = m_config.camera.v4l2_config.image_stream.width;
+    format.height = m_config.camera.v4l2_config.image_stream.height;
+    format.pixel_format = V4L2_PIX_FMT_NV12; // Common thermal camera format
+    
+    ret = irv4l2_set_format(m_v4l2_handle, &format);
+    if (ret != IRLIB_SUCCESS) {
+        std::cerr << "Failed to set video format" << std::endl;
+        return false;
+    }
+    
+    // Set frame rate
+    V4L2StreamParams_t stream_params = {0};
+    stream_params.fps = m_config.camera.v4l2_config.image_stream.fps;
+    
+    ret = irv4l2_set_stream_params(m_v4l2_handle, &stream_params);
+    if (ret != IRLIB_SUCCESS) {
+        std::cerr << "Failed to set stream parameters" << std::endl;
+        return false;
+    }
+    
+    // Start video stream
+    ret = irv4l2_start_stream(m_v4l2_handle);
+    if (ret != IRLIB_SUCCESS) {
+        std::cerr << "Failed to start video stream" << std::endl;
+        return false;
+    }
+    
     std::cout << "Video interface initialized successfully" << std::endl;
+    std::cout << "Resolution: " << format.width << "x" << format.height << std::endl;
+    std::cout << "Frame rate: " << stream_params.fps << " FPS" << std::endl;
     return true;
 }
 
@@ -386,9 +428,17 @@ void* ThermalCamera::videoStreamThread(void* arg) {
     auto last_fps_time = start_time;
     
     std::cout << "=== Live Thermal Video Stream Started ===" << std::endl;
-    std::cout << "Window 1: Raw Thermal Data" << std::endl;
+    std::cout << "Window 1: Raw Thermal Data (Live from Camera)" << std::endl;
     std::cout << "Window 2: Temperature Visualization with Color Map" << std::endl;
     std::cout << "Controls: 'q'=quit, 's'=save, 't'=temp range, 'c'=colormap" << std::endl;
+    
+    // Check if real camera is available
+    cv::Mat test_frame = camera->captureRealThermalFrame();
+    if (!test_frame.empty()) {
+        std::cout << "✓ Real thermal camera detected - Live streaming enabled!" << std::endl;
+    } else {
+        std::cout << "⚠ Real camera not available - Using simulation mode" << std::endl;
+    }
     
     while (camera->m_video_streaming) {
         try {
@@ -454,7 +504,60 @@ void* ThermalCamera::videoStreamThread(void* arg) {
     return nullptr;
 }
 
+cv::Mat ThermalCamera::captureRealThermalFrame() {
+    if (!m_v4l2_handle) {
+        std::cerr << "V4L2 handle not initialized" << std::endl;
+        return cv::Mat();
+    }
+    
+    // Capture frame from V4L2 stream
+    V4L2Frame_t frame_data;
+    int ret = irv4l2_get_frame(m_v4l2_handle, &frame_data);
+    
+    if (ret != IRLIB_SUCCESS) {
+        std::cerr << "Failed to capture frame from thermal camera" << std::endl;
+        return cv::Mat();
+    }
+    
+    // Convert V4L2 frame to OpenCV Mat
+    cv::Mat thermal_frame;
+    
+    if (frame_data.format == V4L2_PIX_FMT_NV12) {
+        // Convert NV12 to grayscale
+        cv::Mat nv12_frame(frame_data.height + frame_data.height/2, frame_data.width, CV_8UC1, frame_data.data);
+        cv::Mat yuv_frame;
+        cv::cvtColor(nv12_frame, yuv_frame, cv::COLOR_YUV2BGR_NV12);
+        cv::cvtColor(yuv_frame, thermal_frame, cv::COLOR_BGR2GRAY);
+    } else if (frame_data.format == V4L2_PIX_FMT_YUYV) {
+        // Convert YUYV to grayscale
+        cv::Mat yuyv_frame(frame_data.height, frame_data.width, CV_8UC2, frame_data.data);
+        cv::Mat yuv_frame;
+        cv::cvtColor(yuyv_frame, yuv_frame, cv::COLOR_YUV2BGR_YUYV);
+        cv::cvtColor(yuv_frame, thermal_frame, cv::COLOR_BGR2GRAY);
+    } else if (frame_data.format == V4L2_PIX_FMT_GREY) {
+        // Direct grayscale
+        thermal_frame = cv::Mat(frame_data.height, frame_data.width, CV_8UC1, frame_data.data).clone();
+    } else {
+        std::cerr << "Unsupported pixel format: " << frame_data.format << std::endl;
+        return cv::Mat();
+    }
+    
+    // Release frame buffer
+    irv4l2_release_frame(m_v4l2_handle, &frame_data);
+    
+    return thermal_frame;
+}
+
 cv::Mat ThermalCamera::simulateThermalFrame() {
+    // Try to capture real frame first
+    cv::Mat real_frame = captureRealThermalFrame();
+    if (!real_frame.empty()) {
+        return real_frame;
+    }
+    
+    // Fallback to simulation if real camera not available
+    std::cout << "Real camera not available, using simulation..." << std::endl;
+    
     // Create a simulated thermal image (640x480)
     cv::Mat thermal_frame = cv::Mat::zeros(480, 640, CV_8UC1);
     

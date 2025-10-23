@@ -86,6 +86,7 @@ private:
     static void* videoStreamThread(void* arg);
     
     // Video streaming helper methods
+    cv::Mat captureRealThermalFrame();
     cv::Mat simulateThermalFrame();
     cv::Mat simulateVisibleFrame();
     cv::Mat createTemperatureVisualization(const cv::Mat& thermal_frame);
