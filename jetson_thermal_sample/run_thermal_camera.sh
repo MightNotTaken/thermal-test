@@ -62,10 +62,37 @@ setup_environment() {
 check_dependencies() {
     print_status "Checking dependencies..."
     
-    # Check if executable exists
-    if [ ! -f "./jetson_thermal_sample" ]; then
-        print_error "Executable not found: ./jetson_thermal_sample"
-        print_error "Please build the project first using: ./build.sh"
+    # Check for executables in multiple locations
+    EXECUTABLE_FOUND=false
+    EXECUTABLE_PATH=""
+    
+    # Try full version first
+    if [ -f "./jetson_thermal_sample" ]; then
+        EXECUTABLE_PATH="./jetson_thermal_sample"
+        EXECUTABLE_FOUND=true
+        print_success "Found full SDK version: $EXECUTABLE_PATH"
+    elif [ -f "./build/jetson_thermal_sample" ]; then
+        EXECUTABLE_PATH="./build/jetson_thermal_sample"
+        EXECUTABLE_FOUND=true
+        print_success "Found full SDK version in build directory: $EXECUTABLE_PATH"
+    # Try simple version
+    elif [ -f "./jetson_thermal_sample_simple" ]; then
+        EXECUTABLE_PATH="./jetson_thermal_sample_simple"
+        EXECUTABLE_FOUND=true
+        print_success "Found simple version: $EXECUTABLE_PATH"
+    elif [ -f "./build/jetson_thermal_sample_simple" ]; then
+        EXECUTABLE_PATH="./build/jetson_thermal_sample_simple"
+        EXECUTABLE_FOUND=true
+        print_success "Found simple version in build directory: $EXECUTABLE_PATH"
+    fi
+    
+    if [ "$EXECUTABLE_FOUND" = false ]; then
+        print_error "No executable found"
+        print_status "Available files:"
+        ls -la jetson_thermal_sample* 2>/dev/null || echo "No jetson_thermal_sample* files found"
+        ls -la build/jetson_thermal_sample* 2>/dev/null || echo "No build/jetson_thermal_sample* files found"
+        echo ""
+        print_error "Please run ./build.sh first to build the project"
         exit 1
     fi
     
@@ -124,7 +151,7 @@ main() {
     echo ""
     
     # Run the application
-    exec ./jetson_thermal_sample config/jetson_thermal.conf
+    exec $EXECUTABLE_PATH config/jetson_thermal.conf
 }
 
 # Handle signals
