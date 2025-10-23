@@ -1,0 +1,62 @@
+# Build directories
+build/
+cmake-build-*/
+
+# Executables
+jetson_thermal_sample
+*.exe
+
+# Object files
+*.o
+*.obj
+
+# Libraries
+*.a
+*.so
+*.dll
+*.dylib
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# IDE files
+.vscode/
+.idea/
+*.vcxproj
+*.vcxproj.filters
+*.sln
+*.user
+
+# Log files
+*.log
+/tmp/
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Configuration files (keep templates)
+!config/*.conf.template
+config/*.conf.local
+
+# Documentation build
+docs/_build/
+docs/build/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Backup files
+*.bak
+*.backup
