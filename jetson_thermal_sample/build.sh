@@ -174,8 +174,8 @@ configure_cmake() {
         -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
         -DCMAKE_C_COMPILER=gcc \
         -DCMAKE_CXX_COMPILER=g++ \
-        -DCMAKE_C_FLAGS="-O3 -Wall -Wextra -Wno-unused-variable -Wno-reorder" \
-        -DCMAKE_CXX_FLAGS="-O3 -Wall -Wextra -Wno-unused-variable -Wno-reorder" \
+        -DCMAKE_C_FLAGS="-O3 -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wno-format-truncation" \
+        -DCMAKE_CXX_FLAGS="-O3 -Wall -Wextra -Wno-unused-variable -Wno-reorder -Wno-unused-parameter" \
         -DCMAKE_INSTALL_PREFIX=/usr/local \
         -DOPENCV_DIR=/usr/lib/aarch64-linux-gnu/cmake/opencv4
     

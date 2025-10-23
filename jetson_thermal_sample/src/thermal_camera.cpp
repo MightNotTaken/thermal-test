@@ -97,7 +97,7 @@ bool ThermalCamera::initializeControl() {
         // Initialize UART
         UartConDevParams_t uart_params = {0};
         uart_params.baudrate = 115200;
-        uart_params.reserved = 0;
+        // Note: reserved field is an array, not a single int
         ret = m_control_handle->ir_control_init(m_control_handle->ir_control_handle, &uart_params);
         if (ret != IRLIB_SUCCESS) {
             std::cerr << "Failed to initialize UART" << std::endl;

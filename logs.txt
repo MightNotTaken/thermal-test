@@ -1,7 +1,13 @@
-sudo ./build.sh
+ls
+build     CMakeLists.txt  README.md              src
+build.sh  config          run_thermal_camera.sh  test_simple.sh
+root@ubuntu:/home/sahil/Desktop/sdk/jetson_thermal_sample# chmod +x *.sh
+root@ubuntu:/home/sahil/Desktop/sdk/jetson_thermal_sample# sudo su
+root@ubuntu:/home/sahil/Desktop/sdk/jetson_thermal_sample# ./build.sh
 === Jetson Thermal Camera Sample Build Script ===
 Target: NVIDIA Jetson with Ubuntu 22.04
 Architecture: ARM64 (aarch64-linux-gnu)
+Fixed version with all compilation errors resolved
 
 Starting build process for Jetson Thermal Camera Sample...
 
@@ -20,9 +26,9 @@ TARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia
 [INFO] Installing dependencies...
 Hit:1 https://repo.download.nvidia.com/jetson/common r36.4 InRelease
 Hit:2 https://repo.download.nvidia.com/jetson/t234 r36.4 InRelease
-Hit:3 https://repo.download.nvidia.com/jetson/ffmpeg r36.4 InRelease
-Hit:4 http://ports.ubuntu.com/ubuntu-ports jammy InRelease
-Hit:5 http://ports.ubuntu.com/ubuntu-ports jammy-updates InRelease
+Hit:3 http://ports.ubuntu.com/ubuntu-ports jammy InRelease
+Hit:4 http://ports.ubuntu.com/ubuntu-ports jammy-updates InRelease
+Hit:5 https://repo.download.nvidia.com/jetson/ffmpeg r36.4 InRelease
 Hit:6 http://ports.ubuntu.com/ubuntu-ports jammy-backports InRelease
 Hit:7 http://ports.ubuntu.com/ubuntu-ports jammy-security InRelease
 Reading package lists... Done
@@ -109,118 +115,247 @@ CMake Warning:
 [INFO] Building project...
 [INFO] Using 6 cores for parallel build
 [INFO] Building full SDK version (with libir SDK dependencies)...
-[ 20%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/config_parser.cpp.o
+[  6%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/thermal_camera.cpp.o
+[ 13%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/config.cpp.o
 [ 20%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/main.cpp.o
-[ 20%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/thermal_camera.cpp.o
-[ 26%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp.o
-[ 33%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/data.cpp.o
-[ 40%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/config.cpp.o
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.cpp: In member function ‘const single_config& ConfigParser::getConfig() const’:
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.cpp:193:42: error: cannot convert ‘std::string’ {aka ‘std::__cxx11::basic_string<char>’} to ‘char*’
-  193 |         strncpy(config.control.i2c_param.dev_name, m_video_device.c_str(), sizeof(config.control.i2c_param.dev_name) - 1);
-      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
-      |                                          |
-      |                                          std::string {aka std::__cxx11::basic_string<char>}
-In file included from /usr/include/features.h:486,
-                 from /usr/include/aarch64-linux-gnu/c++/11/bits/os_defines.h:39,
-                 from /usr/include/aarch64-linux-gnu/c++/11/bits/c++config.h:586,
-                 from /usr/include/c++/11/string:38,
-                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.h:4,
-                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.cpp:1:
-/usr/include/aarch64-linux-gnu/bits/string_fortified.h:92:1: note:   initializing argument 1 of ‘char* strncpy(char*, const char*, size_t)’
-   92 | __NTH (strncpy (char *__restrict __dest, const char *__restrict __src,
-      | ^~~~~
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.cpp:201:19: error: ‘struct camera_config’ has no member named ‘fps’
-  201 |     config.camera.fps = m_fps;
-      |                   ^~~
-/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp: In function ‘void init_v4l2_video_stream(StreamFrameInfo_t*)’:
-/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp:84:22: warning: unused variable ‘cur_fmt’ [-Wunused-variable]
-   84 |     FrameOutputFmt_t cur_fmt = stream_frame_info->frame_output_format;
-      |                      ^~~~~~~
-/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp: In function ‘void init_double_channel_video_stream(StreamFrameInfo_t*)’:
-/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp:216:22: warning: unused variable ‘cur_fmt’ [-Wunused-variable]
-  216 |     FrameOutputFmt_t cur_fmt = stream_frame_info->frame_output_format;
-      |                      ^~~~~~~
-/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp: In function ‘void init_temp_video_stream(StreamFrameInfo_t*)’:
-/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp:343:22: warning: unused variable ‘cur_fmt’ [-Wunused-variable]
-  343 |     FrameOutputFmt_t cur_fmt = stream_frame_info->frame_output_format;
-      |                      ^~~~~~~
-/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp: In function ‘void init_image_video_stream(StreamFrameInfo_t*)’:
-/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp:418:22: warning: unused variable ‘cur_fmt’ [-Wunused-variable]
-  418 |     FrameOutputFmt_t cur_fmt = stream_frame_info->frame_output_format;
-      |                      ^~~~~~~
-make[3]: *** [CMakeFiles/jetson_thermal_sample.dir/build.make:104: CMakeFiles/jetson_thermal_sample.dir/src/config_parser.cpp.o] Error 1
-make[3]: *** Waiting for unfinished jobs....
-In file included from /home/sahil/Desktop/sdk/libir_sample/common/config.cpp:1:
-/home/sahil/Desktop/sdk/libir_sample/common/config.h: In constructor ‘control_config::control_config()’:
-/home/sahil/Desktop/sdk/libir_sample/common/config.h:63:10: warning: ‘control_config::is_usb_control’ will be initialized after [-Wreorder]
-   63 |     bool is_usb_control;
-      |          ^~~~~~~~~~~~~~
-/home/sahil/Desktop/sdk/libir_sample/common/config.h:62:10: warning:   ‘bool control_config::is_i2c_usb_control’ [-Wreorder]
-   62 |     bool is_i2c_usb_control;
-      |          ^~~~~~~~~~~~~~~~~~
-/home/sahil/Desktop/sdk/libir_sample/common/config.cpp:373:1: warning:   when initialized here [-Wreorder]
-  373 | control_config::control_config()
-      | ^~~~~~~~~~~~~~
-In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:5:
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:76:19: error: field ‘m_config’ has incomplete type ‘single_config’
-   76 |     single_config m_config;
-      |                   ^~~~~~~~
-In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:10,
-                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:5:
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.h:9:8: note: forward declaration of ‘struct single_config’
-    9 | struct single_config;
-      |        ^~~~~~~~~~~~~
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp: In function ‘int main(int, char**)’:
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:52:44: error: ‘irv4l2_version’ was not declared in this scope; did you mean ‘libv4l2_version’?
-   52 |         std::cout << "IRV4L2 Version: " << irv4l2_version() << std::endl;
-      |                                            ^~~~~~~~~~~~~~
-      |                                            libv4l2_version
-In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp:1:
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:76:19: error: field ‘m_config’ has incomplete type ‘single_config’
-   76 |     single_config m_config;
-      |                   ^~~~~~~~
-In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:10,
-                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp:1:
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.h:9:8: note: forward declaration of ‘struct single_config’
-    9 | struct single_config;
-      |        ^~~~~~~~~~~~~
+[ 26%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/config_parser.cpp.o
+[ 33%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/v4l2_camera.cpp.o
+[ 40%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/data.cpp.o
+[ 46%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/common/drm_display.cpp.o
+[ 53%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp.o
+/home/sahil/Desktop/sdk/libir_sample/common/drm_display.cpp:103:13: warning: ‘void modeset_page_flip_handler(int, uint32_t, uint32_t, uint32_t, void*)’ defined but not used [-Wunused-function]
+  103 | static void modeset_page_flip_handler(int fd, uint32_t frame,
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/common/drm_display.cpp:31:13: warning: ‘void write_color(buffer_object*, unsigned int)’ defined but not used [-Wunused-function]
+   31 | static void write_color(struct buffer_object *bo, unsigned int color)
+      |             ^~~~~~~~~~~
+[ 60%] Building C object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/thirdparty/cJSON/src/cJSON.c.o
+cc1: warning: command-line option ‘-Wno-reorder’ is valid for C++/ObjC++ but not for C
+[ 66%] Building C object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c.o
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘void* get_percentage_of_data_update(void*, void*)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:4:64: warning: unused parameter ‘priv_data’ [-Wunused-parameter]
+    4 | void* get_percentage_of_data_update(void* callback_data, void* priv_data)
+      |                                                          ~~~~~~^~~~~~~~~
+cc1: warning: command-line option ‘-Wno-reorder’ is valid for C++/ObjC++ but not for C
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘void* get_percentage_of_cfg_update(void*, void*)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:514:63: warning: unused parameter ‘data’ [-Wunused-parameter]
+  514 | void* get_percentage_of_cfg_update(void* callback_param,void* data)
+      |                                                         ~~~~~~^~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘void get_device_info_demo(IrcmdHandle_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:56:14: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+   56 |         scanf("%d", &param);
+      |         ~~~~~^~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘void palette_operate_demo(IrcmdHandle_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:155:14: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  155 |         scanf("%d", &param);
+      |         ~~~~~^~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:175:18: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  175 |             scanf("%d", &color_index);
+      |             ~~~~~^~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘void temp_measure_demo(IrcmdHandle_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:218:14: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  218 |         scanf("%d", &param);
+      |         ~~~~~^~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:228:18: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  228 |             scanf("%hd %hd", &(point_pos.x), &(point_pos.y));
+      |             ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:236:18: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  236 |             scanf("%hd %hd", &(line_pos.start_point.x), &(line_pos.start_point.y));
+      |             ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:238:18: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  238 |             scanf("%hd %hd", &(line_pos.end_point.x), &(line_pos.end_point.y));
+      |             ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:255:18: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  255 |             scanf("%hd %hd", &(rect_pos.start_point.x), &(rect_pos.start_point.y));
+      |             ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:257:18: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  257 |             scanf("%hd %hd", &(rect_pos.end_point.x), &(rect_pos.end_point.y));
+      |             ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘void image_effection_demo(IrcmdHandle_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:302:14: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  302 |         scanf("%d", &param);
+      |         ~~~~~^~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:312:18: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  312 |             scanf("%d", &level);
+      |             ~~~~~^~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:323:18: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  323 |             scanf("%d", &level);
+      |             ~~~~~^~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘void switch_stream_source_demo(IrcmdHandle_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:370:14: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  370 |         scanf("%d", &source);
+      |         ~~~~~^~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘void command_sel(int, StreamFrameInfo_t*)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:421:5: warning: this statement may fall through [-Wimplicit-fallthrough=]
+  421 |     if (handle->product_config.camera.open_temp_measure)
+      |     ^~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:433:5: note: here
+  433 |     case 9:
+      |     ^~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:410:14: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  410 |         scanf("%d", &mode);
+      |         ~~~~~^~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:440:14: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  440 |         scanf("%d", &output_info.video_output_format);
+      |         ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:442:14: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  442 |         scanf("%d", &output_info.video_output_fps);
+      |         ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:456:15: warning: ignoring return value of ‘int system(const char*)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  456 |         system("echo 80 > /sys/class/gpio/export");
+      |         ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:457:15: warning: ignoring return value of ‘int system(const char*)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  457 |         system("echo out > /sys/class/gpio/gpio80/direction");
+      |         ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:458:15: warning: ignoring return value of ‘int system(const char*)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  458 |         system("echo 1 > /sys/class/gpio/gpio80/value");
+      |         ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘void* cmd_function(void*)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:507:14: warning: ignoring return value of ‘int scanf(const char*, ...)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  507 |         scanf("%d", &cmd);
+      |         ~~~~~^~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp: In function ‘int search_com(IrControlHandle_t*, IrcmdHandle_t**, int)’:
+/home/sahil/Desktop/sdk/libir_sample/components/cmd.cpp:699:14: warning: ignoring return value of ‘size_t fread(void*, size_t, size_t, FILE*)’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  699 |         fread(buffer, 1, sizeof(buffer), fp);
+      |         ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmGetLibVersion’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:911:47: warning: unused parameter ‘fd’ [-Wunused-parameter]
+  911 | drm_public drmVersionPtr drmGetLibVersion(int fd)
+      |                                           ~~~~^~
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmAddMap’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:1112:17: warning: implicit conversion from ‘drmMapType’ to ‘enum drm_map_type’ [-Wenum-conversion]
+ 1112 |     map.type    = type;
+      |                 ^
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:1113:17: warning: implicit conversion from ‘drmMapFlags’ to ‘enum drm_map_flags’ [-Wenum-conversion]
+ 1113 |     map.flags   = flags;
+      |                 ^
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmAddBufs’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:1157:23: warning: implicit conversion from ‘drmBufDescFlags’ to ‘enum <anonymous>’ [-Wenum-conversion]
+ 1157 |     request.flags     = flags;
+      |                       ^
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmDMA’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:1436:25: warning: implicit conversion from ‘drmDMAFlags’ to ‘enum drm_dma_flags’ [-Wenum-conversion]
+ 1436 |     dma.flags           = request->flags;
+      |                         ^
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmGetMap’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:2373:13: warning: implicit conversion from ‘enum drm_map_type’ to ‘drmMapType’ [-Wenum-conversion]
+ 2373 |     *type   = map.type;
+      |             ^
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:2374:13: warning: implicit conversion from ‘enum drm_map_flags’ to ‘drmMapFlags’ [-Wenum-conversion]
+ 2374 |     *flags  = map.flags;
+      |             ^
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmOpenOnce’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:2678:34: warning: unused parameter ‘unused’ [-Wunused-parameter]
+ 2678 | drm_public int drmOpenOnce(void *unused, const char *BusID, int *newlyopened)
+      |                            ~~~~~~^~~~~~
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘sysfs_uevent_get’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:2965:11: warning: implicit declaration of function ‘vasprintf’; did you mean ‘vsprintf’? [-Wimplicit-function-declaration]
+ 2965 |     num = vasprintf(&key, fmt, ap);
+      |           ^~~~~~~~~
+      |           vsprintf
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmProcessUsbDevice’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:3494:64: warning: unused parameter ‘flags’ [-Wunused-parameter]
+ 3494 |                                bool fetch_deviceinfo, uint32_t flags)
+      |                                                       ~~~~~~~~~^~~~~
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmProcessPlatformDevice’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:3601:46: warning: unused parameter ‘flags’ [-Wunused-parameter]
+ 3601 |                                     uint32_t flags)
+      |                                     ~~~~~~~~~^~~~~
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmProcessHost1xDevice’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:3708:44: warning: unused parameter ‘flags’ [-Wunused-parameter]
+ 3708 |                                   uint32_t flags)
+      |                                   ~~~~~~~~~^~~~~
+In file included from /home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:69:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘drmGetMinorNameForFD’:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/../libir_sample/thirdparty/libdrm/include/xf86drm.h:86:23: warning: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size 55 [-Wformat-truncation=]
+   86 | #define DRM_DIR_NAME  "/dev/dri"
+      |                       ^~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:2892:50: note: in expansion of macro ‘DRM_DIR_NAME’
+ 2892 |             snprintf(dev_name, sizeof(dev_name), DRM_DIR_NAME "/%s",
+      |                                                  ^~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:2892:65: note: format string is defined here
+ 2892 |             snprintf(dev_name, sizeof(dev_name), DRM_DIR_NAME "/%s",
+      |                                                                 ^~
+In file included from /usr/include/stdio.h:894,
+                 from /home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:34:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:71:10: note: ‘__builtin___snprintf_chk’ output between 10 and 265 bytes into a destination of size 64
+   71 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   72 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   73 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+[ 73%] Building C object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drmHash.c.o
+cc1: warning: command-line option ‘-Wno-reorder’ is valid for C++/ObjC++ but not for C
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c: In function ‘process_device’:
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:3188:37: warning: ‘/’ directive output may be truncated writing 1 byte into a region of size between 0 and 4096 [-Wformat-truncation=]
+ 3188 |         snprintf(path, PATH_MAX, "%s/%s", pci_path, attrs[i]);
+      |                                     ^
+In file included from /usr/include/stdio.h:894,
+                 from /home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:34:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:71:10: note: ‘__builtin___snprintf_chk’ output 2 or more bytes (assuming 4098) into a destination of size 4096
+   71 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   72 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   73 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:3218:33: warning: ‘/config’ directive output may be truncated writing 7 bytes into a region of size between 0 and 4096 [-Wformat-truncation=]
+ 3218 |     snprintf(path, PATH_MAX, "%s/config", pci_path);
+      |                                 ^~~~~~~
+In file included from /usr/include/stdio.h:894,
+                 from /home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:34:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:71:10: note: ‘__builtin___snprintf_chk’ output between 8 and 4104 bytes into a destination of size 4096
+   71 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   72 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   73 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:3188:37: warning: ‘/’ directive output may be truncated writing 1 byte into a region of size between 0 and 4096 [-Wformat-truncation=]
+ 3188 |         snprintf(path, PATH_MAX, "%s/%s", pci_path, attrs[i]);
+      |                                     ^
+In file included from /usr/include/stdio.h:894,
+                 from /home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drm.c:34:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:71:10: note: ‘__builtin___snprintf_chk’ output 2 or more bytes (assuming 4098) into a destination of size 4096
+   71 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   72 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   73 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+[ 80%] Building C object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drmMode.c.o
+cc1: warning: command-line option ‘-Wno-reorder’ is valid for C++/ObjC++ but not for C
 /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp: In member function ‘bool ThermalCamera::initializeControl()’:
 /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp:98:44: warning: missing initializer for member ‘UartConDevParams_t::reserved’ [-Wmissing-field-initializers]
    98 |         UartConDevParams_t uart_params = {0};
       |                                            ^
-make[3]: *** [CMakeFiles/jetson_thermal_sample.dir/build.make:76: CMakeFiles/jetson_thermal_sample.dir/src/main.cpp.o] Error 1
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp:100:30: error: incompatible types in assignment of ‘int’ to ‘int [63]’
+  100 |         uart_params.reserved = 0;
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~
+[ 86%] Building C object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drmRandom.c.o
+cc1: warning: command-line option ‘-Wno-reorder’ is valid for C++/ObjC++ but not for C
+[ 93%] Building C object CMakeFiles/jetson_thermal_sample.dir/home/sahil/Desktop/sdk/libir_sample/thirdparty/libdrm/xf86drmSL.c.o
+cc1: warning: command-line option ‘-Wno-reorder’ is valid for C++/ObjC++ but not for C
 make[3]: *** [CMakeFiles/jetson_thermal_sample.dir/build.make:90: CMakeFiles/jetson_thermal_sample.dir/src/thermal_camera.cpp.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
 make[2]: *** [CMakeFiles/Makefile2:85: CMakeFiles/jetson_thermal_sample.dir/all] Error 2
 make[1]: *** [CMakeFiles/Makefile2:92: CMakeFiles/jetson_thermal_sample.dir/rule] Error 2
 make: *** [Makefile:169: jetson_thermal_sample] Error 2
-[ERROR] Full SDK version build failed
-[INFO] Trying simple fallback version...
-[ 33%] Building CXX object CMakeFiles/jetson_thermal_sample_simple.dir/src/simple_main.cpp.o
-[ 66%] Building CXX object CMakeFiles/jetson_thermal_sample_simple.dir/src/simple_thermal_camera.cpp.o
-[100%] Linking CXX executable jetson_thermal_sample_simple
-[100%] Built target jetson_thermal_sample_simple
-[SUCCESS] Simple fallback version built successfully
-[WARNING] Using simple version - full SDK features not available
+[SUCCESS] Full SDK version built successfully
 [SUCCESS] Build completed
 
 [INFO] Installing project...
 Consolidate compiler generated dependencies of target jetson_thermal_sample
-[  5%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/main.cpp.o
-In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:5:
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:76:19: error: field ‘m_config’ has incomplete type ‘single_config’
-   76 |     single_config m_config;
-      |                   ^~~~~~~~
-In file included from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.h:10,
-                 from /home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:5:
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/config_parser.h:9:8: note: forward declaration of ‘struct single_config’
-    9 | struct single_config;
-      |        ^~~~~~~~~~~~~
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp: In function ‘int main(int, char**)’:
-/home/sahil/Desktop/sdk/jetson_thermal_sample/src/main.cpp:52:44: error: ‘irv4l2_version’ was not declared in this scope; did you mean ‘libv4l2_version’?
-   52 |         std::cout << "IRV4L2 Version: " << irv4l2_version() << std::endl;
-      |                                            ^~~~~~~~~~~~~~
-      |                                            libv4l2_version
-make[2]: *** [CMakeFiles/jetson_thermal_sample.dir/build.make:76: CMakeFiles/jetson_thermal_sample.dir/src/main.cpp.o] Error 1
+[  5%] Building CXX object CMakeFiles/jetson_thermal_sample.dir/src/thermal_camera.cpp.o
+^[[A^[[A/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp: In member function ‘bool ThermalCamera::initializeControl()’:
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp:98:44: warning: missing initializer for member ‘UartConDevParams_t::reserved’ [-Wmissing-field-initializers]
+   98 |         UartConDevParams_t uart_params = {0};
+      |                                            ^
+/home/sahil/Desktop/sdk/jetson_thermal_sample/src/thermal_camera.cpp:100:30: error: incompatible types in assignment of ‘int’ to ‘int [63]’
+  100 |         uart_params.reserved = 0;
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~
+^[[Amake[2]: *** [CMakeFiles/jetson_thermal_sample.dir/build.make:90: CMakeFiles/jetson_thermal_sample.dir/src/thermal_camera.cpp.o] Error 1
 make[1]: *** [CMakeFiles/Makefile2:85: CMakeFiles/jetson_thermal_sample.dir/all] Error 2
 make: *** [Makefile:136: all] Error 2
+
