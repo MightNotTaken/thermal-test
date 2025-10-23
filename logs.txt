@@ -1,6 +1,16 @@
-./run_thermal_camera.sh 
-Starting Jetson Thermal Camera Sample...
-Configuration: config/jetson_thermal.conf
-Press Ctrl+C to stop
+./build/jetson_thermal_sample ./config/jetson_thermal.conf 
+=== Jetson Thermal Camera Sample ===
+Built for NVIDIA Jetson with Ubuntu 22.04
 
-Error: No executable found
+=== Library Versions ===
+IRCMD Version: libircmd V2.4.3
+IRCAM Version: libircam V2.4.3
+IRUART Version: libiruart V2.4.3
+IRV4L2 Version: libirv4l2 V2.4.3
+
+=== Setting Log Levels ===
+
+=== Loading Configuration ===
+Loading configuration from: ./config/jetson_thermal.conf
+Failed to parse JSON config: Failed to parse JSON
+Failed to load configuration from: ./config/jetson_thermal.conf

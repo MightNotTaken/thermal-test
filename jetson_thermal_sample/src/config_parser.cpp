@@ -74,7 +74,14 @@ bool ConfigParser::loadConfig(const std::string& config_file) {
 bool ConfigParser::parseJsonConfig(const std::string& json_content) {
     cJSON* json = cJSON_Parse(json_content.c_str());
     if (!json) {
-        m_error_message = "Failed to parse JSON";
+        const char* error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr) {
+            m_error_message = "Failed to parse JSON at: " + std::string(error_ptr);
+        } else {
+            m_error_message = "Failed to parse JSON - unknown error";
+        }
+        std::cerr << "JSON parsing error: " << m_error_message << std::endl;
+        std::cerr << "JSON content preview: " << json_content.substr(0, 200) << "..." << std::endl;
         return false;
     }
     
