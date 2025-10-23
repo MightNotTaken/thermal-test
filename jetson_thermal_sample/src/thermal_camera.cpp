@@ -5,6 +5,8 @@
 #include <sys/stat.h>
 #include <chrono>
 #include <thread>
+#include <iomanip>
+#include <cmath>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
@@ -30,6 +32,7 @@ ThermalCamera::ThermalCamera()
     , m_video_streaming(false)
     , m_min_temp(20.0f)
     , m_max_temp(100.0f)
+    , m_colormap_index(0)
 {
     std::cout << "ThermalCamera constructor called" << std::endl;
 }
@@ -366,9 +369,13 @@ void* ThermalCamera::videoStreamThread(void* arg) {
     
     std::cout << "Video stream thread started" << std::endl;
     
-    // Create OpenCV window
+    // Create OpenCV windows with proper sizing
     cv::namedWindow("Thermal Camera Stream", cv::WINDOW_AUTOSIZE);
     cv::namedWindow("Temperature Visualization", cv::WINDOW_AUTOSIZE);
+    
+    // Position windows side by side
+    cv::moveWindow("Thermal Camera Stream", 100, 100);
+    cv::moveWindow("Temperature Visualization", 800, 100);
     
     cv::Mat thermal_frame;
     cv::Mat temperature_vis;
@@ -376,62 +383,74 @@ void* ThermalCamera::videoStreamThread(void* arg) {
     
     int frame_count = 0;
     auto start_time = std::chrono::high_resolution_clock::now();
+    auto last_fps_time = start_time;
+    
+    std::cout << "=== Live Thermal Video Stream Started ===" << std::endl;
+    std::cout << "Window 1: Raw Thermal Data" << std::endl;
+    std::cout << "Window 2: Temperature Visualization with Color Map" << std::endl;
+    std::cout << "Controls: 'q'=quit, 's'=save, 't'=temp range, 'c'=colormap" << std::endl;
     
     while (camera->m_video_streaming) {
         try {
-            // Simulate frame capture from thermal camera
-            // In real implementation, this would capture from V4L2 stream
+            // Capture thermal frame
             thermal_frame = camera->simulateThermalFrame();
-            temperature_vis = camera->createTemperatureVisualization(thermal_frame);
-            visible_frame = camera->simulateVisibleFrame();
             
             if (!thermal_frame.empty()) {
-                // Display thermal image
-                cv::imshow("Thermal Camera Stream", thermal_frame);
+                // Create temperature visualization
+                temperature_vis = camera->createTemperatureVisualization(thermal_frame);
                 
-                // Display temperature visualization
-                cv::imshow("Temperature Visualization", temperature_vis);
-                
-                // Add frame info overlay
+                // Add frame info overlay to thermal frame
                 camera->addFrameInfoOverlay(thermal_frame, frame_count);
+                
+                // Display both windows
+                cv::imshow("Thermal Camera Stream", thermal_frame);
+                cv::imshow("Temperature Visualization", temperature_vis);
                 
                 // Update frame counter
                 frame_count++;
                 
-                // Calculate and display FPS
+                // Calculate and display FPS every 30 frames
                 if (frame_count % 30 == 0) {
                     auto current_time = std::chrono::high_resolution_clock::now();
-                    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
+                    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_fps_time);
                     double fps = 30000.0 / duration.count();
-                    std::cout << "FPS: " << fps << std::endl;
-                    start_time = current_time;
+                    std::cout << "Live Stream - Frame: " << frame_count << ", FPS: " << std::fixed << std::setprecision(1) << fps << std::endl;
+                    last_fps_time = current_time;
                 }
             }
             
-            // Handle keyboard input
+            // Handle keyboard input with immediate response
             char key = cv::waitKey(1) & 0xFF;
             if (key == 'q' || key == 27) { // 'q' or ESC
-                std::cout << "User requested exit" << std::endl;
+                std::cout << "User requested exit - stopping video stream" << std::endl;
                 camera->m_video_streaming = false;
                 break;
             } else if (key == 's') { // Save frame
                 std::string filename = "thermal_frame_" + std::to_string(frame_count) + ".png";
-                camera->saveFrame(filename);
-                std::cout << "Frame saved: " << filename << std::endl;
+                if (camera->saveFrame(filename)) {
+                    std::cout << "Frame saved: " << filename << std::endl;
+                } else {
+                    std::cout << "Failed to save frame" << std::endl;
+                }
             } else if (key == 't') { // Toggle temperature range
                 camera->toggleTemperatureRange();
+            } else if (key == 'c') { // Cycle colormap
+                camera->cycleColormap();
+            } else if (key == 'r') { // Reset view
+                std::cout << "Resetting thermal camera view" << std::endl;
             }
             
         } catch (const std::exception& e) {
             std::cerr << "Error in video stream thread: " << e.what() << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         
-        // Control frame rate (30 FPS)
+        // Control frame rate (30 FPS) - precise timing
         std::this_thread::sleep_for(std::chrono::milliseconds(33));
     }
     
     cv::destroyAllWindows();
-    std::cout << "Video stream thread ended" << std::endl;
+    std::cout << "Video stream thread ended - Total frames processed: " << frame_count << std::endl;
     return nullptr;
 }
 
@@ -439,15 +458,42 @@ cv::Mat ThermalCamera::simulateThermalFrame() {
     // Create a simulated thermal image (640x480)
     cv::Mat thermal_frame = cv::Mat::zeros(480, 640, CV_8UC1);
     
-    // Add some thermal patterns
-    cv::circle(thermal_frame, cv::Point(320, 240), 50, cv::Scalar(255), -1);
-    cv::circle(thermal_frame, cv::Point(200, 150), 30, cv::Scalar(200), -1);
-    cv::circle(thermal_frame, cv::Point(450, 300), 40, cv::Scalar(180), -1);
+    // Get current time for dynamic patterns
+    auto now = std::chrono::high_resolution_clock::now();
+    auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+    double time_sec = time_ms / 1000.0;
     
-    // Add some noise
+    // Create dynamic thermal patterns
+    int center_x = 320 + 50 * sin(time_sec * 0.5);
+    int center_y = 240 + 30 * cos(time_sec * 0.3);
+    
+    // Main heat source (moving)
+    cv::circle(thermal_frame, cv::Point(center_x, center_y), 60, cv::Scalar(255), -1);
+    
+    // Secondary heat sources
+    cv::circle(thermal_frame, cv::Point(150, 120), 25, cv::Scalar(200), -1);
+    cv::circle(thermal_frame, cv::Point(500, 350), 35, cv::Scalar(180), -1);
+    
+    // Add moving hot spot
+    int hot_x = 100 + 200 * (sin(time_sec * 0.8) + 1) / 2;
+    int hot_y = 300 + 100 * (cos(time_sec * 0.6) + 1) / 2;
+    cv::circle(thermal_frame, cv::Point(hot_x, hot_y), 20, cv::Scalar(240), -1);
+    
+    // Add temperature gradient background
+    for (int y = 0; y < 480; y++) {
+        for (int x = 0; x < 640; x++) {
+            int base_temp = 80 + 20 * sin(x * 0.01) * cos(y * 0.01);
+            thermal_frame.at<uchar>(y, x) = std::max(0, std::min(255, base_temp));
+        }
+    }
+    
+    // Add realistic thermal noise
     cv::Mat noise = cv::Mat::zeros(480, 640, CV_8UC1);
-    cv::randn(noise, cv::Scalar(0), cv::Scalar(10));
+    cv::randn(noise, cv::Scalar(0), cv::Scalar(8));
     thermal_frame += noise;
+    
+    // Apply slight blur for realism
+    cv::GaussianBlur(thermal_frame, thermal_frame, cv::Size(3, 3), 0.5);
     
     return thermal_frame;
 }
@@ -467,34 +513,73 @@ cv::Mat ThermalCamera::simulateVisibleFrame() {
 cv::Mat ThermalCamera::createTemperatureVisualization(const cv::Mat& thermal_frame) {
     cv::Mat temp_vis;
     
-    // Apply colormap for temperature visualization
-    cv::applyColorMap(thermal_frame, temp_vis, cv::COLORMAP_JET);
+    // Available colormaps for thermal visualization
+    int colormaps[] = {
+        cv::COLORMAP_JET,      // 0 - Classic thermal (blue to red)
+        cv::COLORMAP_HOT,      // 1 - Hot thermal (black to white to red)
+        cv::COLORMAP_INFERNO,  // 2 - Inferno (purple to yellow)
+        cv::COLORMAP_PLASMA,   // 3 - Plasma (purple to pink)
+        cv::COLORMAP_VIRIDIS,  // 4 - Viridis (purple to green)
+        cv::COLORMAP_RAINBOW,  // 5 - Rainbow (full spectrum)
+        cv::COLORMAP_TURBO     // 6 - Turbo (improved rainbow)
+    };
     
-    // Add temperature scale
-    cv::Mat scale = cv::Mat::zeros(480, 50, CV_8UC3);
+    // Apply selected colormap
+    cv::applyColorMap(thermal_frame, temp_vis, colormaps[m_colormap_index]);
+    
+    // Add temperature scale on the right
+    cv::Mat scale = cv::Mat::zeros(480, 60, CV_8UC3);
     for (int i = 0; i < 480; i++) {
-        int color_value = (i * 255) / 480;
-        cv::Scalar color;
-        cv::applyColorMap(cv::Mat(1, 1, CV_8UC1, color_value), color, cv::COLORMAP_JET);
-        scale.row(i) = color[0];
+        int color_value = 255 - (i * 255) / 480; // Invert for proper temperature scale
+        cv::Mat color_mat(1, 1, CV_8UC1, color_value);
+        cv::Mat color_vis;
+        cv::applyColorMap(color_mat, color_vis, colormaps[m_colormap_index]);
+        scale.row(i) = color_vis.at<cv::Vec3b>(0, 0);
     }
     
+    // Add temperature labels
+    cv::putText(scale, "Hot", cv::Point(5, 20), cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255, 255, 255), 1);
+    cv::putText(scale, "Cold", cv::Point(5, 460), cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255, 255, 255), 1);
+    
+    // Add colormap name
+    std::string colormap_names[] = {"JET", "HOT", "INFERNO", "PLASMA", "VIRIDIS", "RAINBOW", "TURBO"};
+    cv::putText(scale, colormap_names[m_colormap_index], cv::Point(5, 40), cv::FONT_HERSHEY_SIMPLEX, 0.3, cv::Scalar(255, 255, 255), 1);
+    
     // Combine thermal image with scale
-    cv::hconcat(thermal_frame, scale, temp_vis);
+    cv::hconcat(temp_vis, scale, temp_vis);
     
     return temp_vis;
 }
 
 void ThermalCamera::addFrameInfoOverlay(cv::Mat& frame, int frame_count) {
-    // Add frame information overlay
+    // Add frame information overlay with background
+    cv::Rect overlay_rect(5, 5, 300, 100);
+    cv::Mat overlay = frame(overlay_rect);
+    cv::Mat overlay_bg = overlay.clone();
+    cv::rectangle(overlay_bg, cv::Point(0, 0), cv::Point(overlay.cols, overlay.rows), cv::Scalar(0, 0, 0), -1);
+    cv::addWeighted(overlay, 0.7, overlay_bg, 0.3, 0, overlay);
+    
+    // Frame counter
     std::string info = "Frame: " + std::to_string(frame_count);
-    cv::putText(frame, info, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255), 2);
+    cv::putText(frame, info, cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0), 2);
     
-    std::string temp_range = "Temp: " + std::to_string(m_min_temp) + "°C - " + std::to_string(m_max_temp) + "°C";
-    cv::putText(frame, temp_range, cv::Point(10, 60), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255), 1);
+    // Temperature range
+    std::string temp_range = "Range: " + std::to_string((int)m_min_temp) + "°C - " + std::to_string((int)m_max_temp) + "°C";
+    cv::putText(frame, temp_range, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 255), 1);
     
+    // FPS indicator
+    std::string fps_info = "FPS: ~30";
+    cv::putText(frame, fps_info, cv::Point(10, 75), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 0), 1);
+    
+    // Controls at bottom
     std::string controls = "Controls: 'q'=quit, 's'=save, 't'=temp range";
-    cv::putText(frame, controls, cv::Point(10, frame.rows - 20), cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255), 1);
+    cv::putText(frame, controls, cv::Point(10, frame.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255, 255, 255), 1);
+    
+    // Add crosshair in center
+    int center_x = frame.cols / 2;
+    int center_y = frame.rows / 2;
+    cv::line(frame, cv::Point(center_x - 10, center_y), cv::Point(center_x + 10, center_y), cv::Scalar(255, 255, 255), 1);
+    cv::line(frame, cv::Point(center_x, center_y - 10), cv::Point(center_x, center_y + 10), cv::Scalar(255, 255, 255), 1);
 }
 
 void ThermalCamera::toggleTemperatureRange() {
@@ -507,6 +592,14 @@ void ThermalCamera::toggleTemperatureRange() {
     m_max_temp = ranges[range_index][1];
     
     std::cout << "Temperature range changed to: " << m_min_temp << "°C - " << m_max_temp << "°C" << std::endl;
+}
+
+void ThermalCamera::cycleColormap() {
+    // Cycle through available colormaps
+    m_colormap_index = (m_colormap_index + 1) % 7;
+    
+    std::string colormap_names[] = {"JET", "HOT", "INFERNO", "PLASMA", "VIRIDIS", "RAINBOW", "TURBO"};
+    std::cout << "Colormap changed to: " << colormap_names[m_colormap_index] << std::endl;
 }
 
 void ThermalCamera::cleanup() {

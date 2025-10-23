@@ -91,6 +91,7 @@ private:
     cv::Mat createTemperatureVisualization(const cv::Mat& thermal_frame);
     void addFrameInfoOverlay(cv::Mat& frame, int frame_count);
     void toggleTemperatureRange();
+    void cycleColormap();
     
     // Member variables
     single_config m_config;
@@ -120,6 +121,9 @@ private:
     // Temperature range for visualization
     float m_min_temp;
     float m_max_temp;
+    
+    // Colormap selection
+    int m_colormap_index;
     
     // Device info
     std::string m_device_name;
